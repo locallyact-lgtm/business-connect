@@ -1,0 +1,50 @@
+
+DEPLOYMENT CHECKLIST FOR EXISTING WORDPRESS SITE
+
+STEP 1: PREPARE WORDPRESS (The Data)
+To allow the app to save/load from your site, add this to your theme's functions.php:
+
+----------------------------------------------------------------------
+// 1. Register the Business Post Type
+add_action('init', function() {
+    register_post_type('business', [
+        'labels' => ['name' => 'Businesses', 'singular_name' => 'Business'],
+        'public' => true,
+        'show_in_rest' => true, // Allows React to talk to WP
+        'supports' => ['title', 'editor', 'thumbnail', 'excerpt', 'custom-fields'],
+        'menu_icon' => 'dashicons-store',
+    ]);
+});
+
+// 2. Register Metadata fields (Address, Phone, Rating)
+add_action('init', function() {
+    $meta_fields = ['address', 'phone', 'rating', 'business_category'];
+    foreach ($meta_fields as $field) {
+        register_post_meta('business', $field, [
+            'show_in_rest' => true,
+            'single' => true,
+            'type' => 'string',
+        ]);
+    }
+});
+----------------------------------------------------------------------
+
+STEP 2: PLUGIN CONFIGURATION
+1. Open your "WordPressReact" plugin settings.
+2. If it asks for an "Entry Point" or "Mount Point", ensure it is set to: #root
+3. Upload your built JavaScript files (usually located in a 'dist' folder after you run a build tool).
+
+STEP 3: THE WORDPRESS PAGE
+1. Create a new Page in WordPress titled "Business Directory".
+2. Switch to the "Code" or "HTML" editor.
+3. Paste the following:
+   <div id="root"></div>
+   
+   (Note: Some plugins handle this automatically and provide a Shortcode instead like [wp-react-app id="1"]. Use whatever the plugin provides).
+
+STEP 4: NO GOOGLE CONSOLE NEEDED
+The app uses a fallback image automatically. If you DO want the AI features later, you can simply define a 'process.env.API_KEY' variable in your build settings or use a WP plugin like "WP Env Vars" to inject it.
+
+STEP 5: TROUBLESHOOTING
+- If styles look weird: Ensure your WP theme doesn't have CSS that conflicts with Tailwind.
+- If data doesn't load: Check that "Permalinks" in WP settings is NOT set to "Plain". Set it to "Post name".
