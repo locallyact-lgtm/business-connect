@@ -1,5 +1,6 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import Header from './components/Header';
 import FilterBar from './components/FilterBar';
 import BusinessCard from './components/BusinessCard';
@@ -128,6 +129,8 @@ const App: React.FC = () => {
         onClose={() => setIsModalOpen(false)} 
         onAdd={handleAddBusiness}
       />
+
+      <Analytics />
 
       <footer className="bg-slate-900 text-white pt-16 pb-8 px-6 md:px-12 mt-20">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
