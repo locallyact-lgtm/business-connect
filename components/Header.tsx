@@ -15,8 +15,9 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   useEffect(() => {
-    // Only attempt AI generation if an API key exists in the environment
-    const hasApiKey = !!process.env.API_KEY && process.env.API_KEY !== "undefined";
+    // Safely check for API key to prevent runtime crashes in production environments
+    const apiKey = typeof process !== 'undefined' ? process.env.API_KEY : undefined;
+    const hasApiKey = !!apiKey && apiKey !== "undefined";
     
     if (hasApiKey) {
       const loadHeader = async () => {

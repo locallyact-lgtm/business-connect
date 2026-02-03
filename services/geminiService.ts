@@ -2,21 +2,22 @@
 import { GoogleGenAI } from "@google/genai";
 
 export const generateHeaderImage = async (): Promise<string | null> => {
-  // If no API key is provided (common in non-dev WordPress environments), 
-  // we exit early to allow the app to use a static fallback.
-  if (!process.env.API_KEY || process.env.API_KEY === "undefined") {
+  // Safe check for process.env to avoid ReferenceError in browser environments
+  const apiKey = typeof process !== 'undefined' ? process.env.API_KEY : undefined;
+
+  if (!apiKey || apiKey === "undefined") {
     console.info("Gemini API Key not found. Using static community header.");
     return null;
   }
 
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    const prompt = `A dynamic and engaging collage representing a diverse range of local businesses in Edgewater, Maryland. 
-    Include high-quality visual icons and elements like a gym, electrical contractor, massage therapy, lawn care service, 
-    HVAC contractor, barber shop, restaurant, automotive service, nail salon, dentist office, house cleaning service, and hair salon. 
-    Use a vibrant color palette (blues, oranges, greens) and a modern grid/collage layout. 
-    Create a sense of local community, warmth, and professional support for small businesses. 
-    Background should feel bright and inviting for a website header.`;
+    const ai = new GoogleGenAI({ apiKey });
+    const prompt = `A professional, high-resolution hero image for a local business directory in Edgewater, Maryland. 
+    The composition should be a wide-angle, photorealistic view of a vibrant, sun-drenched coastal community business district. 
+    It should feature modern storefronts representing a diverse range of local commerce: a boutique fitness studio, 
+    a charming waterfront restaurant with outdoor seating, a professional service vehicle for a local contractor, and an upscale hair salon. 
+    The atmosphere is welcoming, prosperous, and trustworthy, with hints of the Chesapeake Bay shoreline in the background. 
+    Use a palette of navy blues, warm golds, and lush Maryland greenery. Architectural photography style, high-end commercial aesthetic, 16:9 aspect ratio, no text.`;
 
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash-image',
@@ -30,9 +31,11 @@ export const generateHeaderImage = async (): Promise<string | null> => {
       }
     });
 
-    for (const part of response.candidates?.[0]?.content?.parts || []) {
-      if (part.inlineData) {
-        return `data:image/png;base64,${part.inlineData.data}`;
+    if (response.candidates?.[0]?.content?.parts) {
+      for (const part of response.candidates[0].content.parts) {
+        if (part.inlineData) {
+          return `data:image/png;base64,${part.inlineData.data}`;
+        }
       }
     }
     return null;
